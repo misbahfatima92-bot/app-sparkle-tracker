@@ -7,10 +7,12 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { Background } from "@/components/Background";
 import { Sidebar, MobileNav } from "@/components/Sidebar";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
