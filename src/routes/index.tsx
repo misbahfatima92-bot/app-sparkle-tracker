@@ -44,7 +44,7 @@ function Dashboard() {
           <span className="text-sm text-slate-400 hidden sm:inline">{dateStr}</span>
           <button className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur p-2.5 hover:bg-white/10">
             <Bell className="h-4 w-4" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[#080810]" />
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[#080811]" />
           </button>
           <AddApplicationPanel />
         </div>
