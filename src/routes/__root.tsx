@@ -115,16 +115,6 @@ function AuthGate() {
 
   const isLogin = pathname === "/login";
 
-  // Redirect unauthenticated users to /login (except already there)
-  useEffect(() => {
-    if (!ready) return;
-    if (!user && !isLogin) {
-      window.history.replaceState({}, "", "/login");
-      // trigger router by dispatching popstate
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    }
-  }, [ready, user, isLogin]);
-
   if (!ready) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -132,6 +122,10 @@ function AuthGate() {
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
       </div>
     );
+  }
+
+  if (!user && !isLogin) {
+    return <Navigate to="/login" replace />;
   }
 
   if (isLogin || !user) {
