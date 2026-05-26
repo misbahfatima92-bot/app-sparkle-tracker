@@ -1,79 +1,76 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const SESSION_KEY = "jobtrack_session";
-const USERS_KEY = "jobtrack_users";
+const supabase = createClient(
+  "https://rzmispdqrsvfhujslrbe.supabase.co",
+  "YOUR_SUPABASE_ANON_KEY"
+);
 
-export const HARDCODED_USER = {
-  email: "mbmaryambashir1999@gmail.com",
-  password: "Maryam@123",
-};
+export { supabase };
 
 type User = { email: string };
 
 type AuthContextType = {
   user: User | null;
   ready: boolean;
-  login: (email: string, password: string, remember?: boolean) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-function getStoredUsers(): Record<string, string> {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
-      if (raw) setUser(JSON.parse(raw));
-    } catch {}
-    setReady(true);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user?.email) {
+        setUser({ email: data.session.user.email });
+      }
+      setReady(true);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email) {
+        setUser({ email: session.user.email });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => listener.subscription.unsubscribe();
   }, []);
 
-  const login: AuthContextType["login"] = async (email, password, remember = true) => {
-    await new Promise((r) => setTimeout(r, 500));
-    const e = email.trim().toLowerCase();
-    const users = getStoredUsers();
-    const ok = (e === HARDCODED_USER.email.toLowerCase() && password === HARDCODED_USER.password) || (users[e] && users[e] === password);
-    if (!ok) throw new Error("Invalid email or password");
-    const u = { email: e };
-    (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, JSON.stringify(u));
-    setUser(u);
+  const login = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
   };
 
-  const signup: AuthContextType["signup"] = async (email, password) => {
-    await new Promise((r) => setTimeout(r, 500));
-    const e = email.trim().toLowerCase();
-    if (!e || !password) throw new Error("Email and password are required");
-    if (password.length < 6) throw new Error("Password must be at least 6 characters");
-    const users = getStoredUsers();
-    if (users[e] || e === HARDCODED_USER.email.toLowerCase()) throw new Error("Account already exists");
-    users[e] = password;
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    const u = { email: e };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(u));
-    setUser(u);
+  const signup = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) throw new Error(error.message);
   };
 
-  const logout = () => {
-    localStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem(SESSION_KEY);
+  const loginWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + "/dashboard",
+      },
+    });
+    if (error) throw new Error(error.message);
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, ready, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, ready, login, signup, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
