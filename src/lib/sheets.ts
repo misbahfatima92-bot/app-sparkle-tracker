@@ -1,4 +1,6 @@
 // Google Sheets gviz fetcher + parser
+import { supabase } from "./auth";
+
 export type AppRow = {
   id: string;
   company: string;
@@ -72,6 +74,25 @@ export async function fetchSheet(): Promise<AppRow[]> {
     });
   });
   return out;
+}
+
+export async function fetchApplications(userId: string): Promise<AppRow[]> {
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    company: r.company ?? "",
+    category: r.category ?? "",
+    role: r.role ?? "",
+    summary: r.summary ?? "",
+    action_required: r.action_required ?? "",
+    interview_date: r.interview_date ?? null,
+    interview_time: r.interview_time ?? "",
+  }));
 }
 
 export const STATUS_META: Record<

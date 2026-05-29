@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export { supabase };
 
-type User = { email: string };
+type User = { id: string; email: string };
 
 type AuthContextType = {
   user: User | null;
@@ -27,23 +27,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user?.email) {
-        setUser({ email: data.session.user.email });
+      const u = data.session?.user;
+      if (u?.id && u?.email) {
+        setUser({ id: u.id, email: u.email });
       }
       setReady(true);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) =>// Save user token to users table
-if (session?.provider_token) {
-  await supabase.from("users").upsert({
-    id: session.user.id,
-    email: session.user.email,
-    gmail_connected: true,
-    access_token: session.provider_token,
-  });
-} {
-      if (session?.user?.email) {
-        setUser({ email: session.user.email });
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.provider_token && session.user) {
+        await supabase.from("users").upsert({
+          id: session.user.id,
+          email: session.user.email,
+          gmail_connected: true,
+          access_token: session.provider_token,
+        });
+      }
+      const u = session?.user;
+      if (u?.id && u?.email) {
+        setUser({ id: u.id, email: u.email });
       } else {
         setUser(null);
       }
@@ -66,8 +68,9 @@ if (session?.provider_token) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/",redirectTo: window.location.origin + "/",scopes: "https://www.googleapis.com/auth/gmail.readonly",
-           },
+        redirectTo: window.location.origin + "/",
+        scopes: "https://www.googleapis.com/auth/gmail.readonly",
+      },
     });
     if (error) throw new Error(error.message);
   };
