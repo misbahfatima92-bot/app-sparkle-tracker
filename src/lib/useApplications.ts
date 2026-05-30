@@ -10,7 +10,8 @@ export function useApplications() {
       if (!user?.id) throw new Error("Not authenticated");
       return fetchApplications(user.id);
     },
-    enabled: !!user?.id && ready,
+    enabled: true,
+queryFn: () => fetchApplications('9b77f78f-f07d-41ac-95bc-1be46a0dffd2'),
     refetchInterval: 30_000,
     staleTime: 25_000,
   });
