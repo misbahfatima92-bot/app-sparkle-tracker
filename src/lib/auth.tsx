@@ -34,14 +34,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setReady(true);
     });
 
-  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-  const u = session?.user;
-  if (u?.id && u?.email) {
-    setUser({ id: u.id, email: u.email });
-  } else {
-    setUser(null);
-  }
-});
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user;
+      if (u?.id && u?.email) {
+        setUser({ id: u.id, email: u.email });
+      } else {
+        setUser(null);
+      }
+    });
 
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -61,17 +61,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider: "google",
       options: {
         redirectTo: window.location.origin + "/",
-        scopes: "https://www.googleapis.com/auth/gmail.readonly",
-        queryParams: { access_type: "offline", prompt: "consent" },
       },
     });
-const loginWithGoogle = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin + "/",
-    },
-  });
+    if (error) throw new Error(error.message);
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, ready, login, signup, loginWithGoogle, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
