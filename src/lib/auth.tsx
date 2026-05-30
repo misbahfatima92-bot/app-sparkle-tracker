@@ -34,17 +34,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setReady(true);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.provider_token && session.user) {
-        await supabase.from("users").upsert({
-          id: session.user.id,
-          email: session.user.email,
-          gmail_connected: true,
-          access_token: session.provider_token,
-        });
-       // Gmail sync disabled for now
-        );
-      }
+  const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+  if (session?.provider_token && session.user) {
+    await supabase.from("users").upsert({
+      id: session.user.id,
+      email: session.user.email,
+      gmail_connected: true,
+      access_token: session.provider_token,
+    });
+  }
       const u = session?.user;
       if (u?.id && u?.email) {
         setUser({ id: u.id, email: u.email });
