@@ -42,6 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           gmail_connected: true,
           access_token: session.provider_token,
         });
+        // Fire-and-forget initial Gmail sync (don't block auth state update)
+        import("./gmail").then(({ syncGmail }) =>
+          syncGmail(session.user.id).catch(() => {})
+        );
       }
       const u = session?.user;
       if (u?.id && u?.email) {
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         redirectTo: window.location.origin + "/",
         scopes: "https://www.googleapis.com/auth/gmail.readonly",
+        queryParams: { access_type: "offline", prompt: "consent" },
       },
     });
     if (error) throw new Error(error.message);
