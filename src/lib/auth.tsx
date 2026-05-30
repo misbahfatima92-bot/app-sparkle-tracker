@@ -68,16 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(error.message);
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, ready, login, signup, loginWithGoogle, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+options: {
+  redirectTo: window.location.origin + "/",
+},
 }
 
 export function useAuth() {
