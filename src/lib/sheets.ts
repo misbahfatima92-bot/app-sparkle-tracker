@@ -77,12 +77,16 @@ export async function fetchSheet(): Promise<AppRow[]> {
 }
 
 export async function fetchApplications(userId: string): Promise<AppRow[]> {
-  const { data, error } = await supabase
-    .from("applications")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
-  if (error) throw new Error(error.message);
+  const response = await fetch(
+    `https://rzmispdqrsvfhujslrbe.supabase.co/rest/v1/applications?user_id=eq.${userId}&order=created_at.desc`,
+    {
+      headers: {
+        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bWlzcGRxcnN2Zmh1anNscmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3ODczOTYsImV4cCI6MjA5NTM2MzM5Nn0.IsaJr6H3iEN7z4inu1JXbxJ27VdJq5ddYPvAAPAW_NU",
+        "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bWlzcGRxcnN2Zmh1anNscmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3ODczOTYsImV4cCI6MjA5NTM2MzM5Nn0.IsaJr6H3iEN7z4inu1JXbxJ27VdJq5ddYPvAAPAW_NU`
+      }
+    }
+  );
+  const data = await response.json();
   return (data ?? []).map((r: any) => ({
     id: r.id,
     company: r.company ?? "",
@@ -93,6 +97,7 @@ export async function fetchApplications(userId: string): Promise<AppRow[]> {
     interview_date: r.interview_date ?? null,
     interview_time: r.interview_time ?? "",
   }));
+}
 }
 
 export const STATUS_META: Record<
