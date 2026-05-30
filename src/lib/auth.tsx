@@ -36,12 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
   if (session?.provider_token && session.user) {
-    await supabase.from("users").upsert({
-      id: session.user.id,
-      email: session.user.email,
-      gmail_connected: true,
-      access_token: session.provider_token,
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+  const u = session?.user;
+  if (u?.id && u?.email) {
+    setUser({ id: u.id, email: u.email });
+  } else {
+    setUser(null);
+  }
+);
   }
       const u = session?.user;
       if (u?.id && u?.email) {
