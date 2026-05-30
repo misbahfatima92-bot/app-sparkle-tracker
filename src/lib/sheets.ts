@@ -94,7 +94,7 @@ export async function fetchApplications(userId: string): Promise<AppRow[]> {
     role: r.role ?? "",
     summary: r.summary ?? "",
     action_required: r.action_required ?? "",
-    interview_date: r.interview_date ?? null,
+    interview_date: r.interview_date ? String(r.interview_date).slice(0, 10) : null,
     interview_time: r.interview_time ?? "",
   }));
 }
