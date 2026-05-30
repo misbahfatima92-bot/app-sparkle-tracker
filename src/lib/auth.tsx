@@ -42,9 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           gmail_connected: true,
           access_token: session.provider_token,
         });
-        // Fire-and-forget initial Gmail sync (don't block auth state update)
-        import("./gmail").then(({ syncGmail }) =>
-          syncGmail(session.user.id).catch(() => {})
+       // Gmail sync disabled for now
         );
       }
       const u = session?.user;
