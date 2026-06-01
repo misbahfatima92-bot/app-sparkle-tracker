@@ -8,6 +8,8 @@ import { ApplicationsTable } from "@/components/ApplicationsTable";
 import { MiniCalendar } from "@/components/MiniCalendar";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { AddApplicationPanel } from "@/components/AddApplicationPanel";
+import { useGmailConnection } from "@/hooks/useGmailConnection";
+import { Mail, CheckCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -29,7 +31,8 @@ function greeting() {
 function Dashboard() {
   const { user } = useAuth();
   const firstName = user?.name || user?.email.split("@")[0] || "there";
-  const { data: rows = [], isLoading } = useApplications();
+  const { data: rows = [], isLoading } = useApplications(); 
+  const { isConnected, connectGmail } = useGmailConnection();
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
@@ -48,6 +51,18 @@ function Dashboard() {
           <button className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur p-2.5 hover:bg-white/10">
             <Bell className="h-4 w-4" />
             <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[#080811]" />
+            {isConnected ? (
+  <button className="flex items-center gap-2 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm text-green-400">
+    <CheckCircle className="h-4 w-4" /> Gmail Connected ✓
+  </button>
+) : (
+  <button
+    onClick={connectGmail}
+    className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm hover:bg-white/10"
+  >
+    <Mail className="h-4 w-4" /> Connect Gmail
+  </button>
+)}
           </button>
           <AddApplicationPanel />
         </div>
