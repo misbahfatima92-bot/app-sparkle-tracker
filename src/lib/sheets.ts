@@ -90,10 +90,9 @@ export async function fetchApplications(userId: string): Promise<AppRow[]> {
   return (data ?? []).map((r: any) => ({
     id: r.id,
     company: r.company ?? "",
-    category: r.category ?? "",
+    category: r.category ?? r.status ?? "",
     role: r.role ?? "",
     summary: r.summary ?? "",
-    category: r.status ?? "",
     action_required: r.action_required ?? "",
     interview_date: r.interview_date ? String(r.interview_date).slice(0, 10) : null,
     interview_time: r.interview_time ?? "",
