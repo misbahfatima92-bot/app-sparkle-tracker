@@ -3,14 +3,53 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   "https://rzmispdqrsvfhujslrbe.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bWlzcGRxcnN2Zmh1anNscmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3ODczOTYsImV4cCI6MjA5NTM2MzM5Nn0.IsaJr6H3iEN7z4inu1JXbxJ27VdJq5ddYPvAAPAW_NU",
+  "eyJ...",
   {
     auth: {
+      flowType: 'pkce',        // ← yeh add karo
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
   }
+);
+
+Bug 3 — Auth Callback route nahi hai
+src/routes/ mein auth.callback.tsx file banana hai:
+tsximport { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { supabase } from "@/lib/auth";
+
+export const Route = createFileRoute("/auth/callback")({
+  component: AuthCallback,
+});
+
+function AuthCallback() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.exchangeCodeForSession(window.location.href)
+      .then(({ data }) => {
+        if (data.session) navigate({ to: "/", replace: true });
+        else navigate({ to: "/login", replace: true });
+      });
+  }, []);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-slate-400">Logging you in...</p>
+    </div>
+  );
+}
+
+Supabase Dashboard mein bhi update karo
+Authentication → URL Configuration:
+Redirect URLs: http://localhost:5173/auth/callback
+Production URL bhi wahan add karna agar deploy kiya hai.
+
+Summary — 3 jagah changes:
+FileChangesrc/lib/auth.tsxflowType: 'pkce' add karo + redirectTo fix karosrc/routes/auth.callback.tsxNai file banaoSupabase DashboardRedirect URL update karo
+Yeh teeno changes karo — login loop khatam ho jayega!
 );
 export { supabase };
 
