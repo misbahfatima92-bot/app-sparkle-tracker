@@ -1,18 +1,15 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { supabase } from "@/lib/auth";
-
-export const Route = createFileRoute("/auth/callback")({
-  component: AuthCallback,
-});
-
 function AuthCallback() {
   const navigate = useNavigate();
-
   useEffect(() => {
-    supabase.auth.exchangeCodeForSession(window.location.href).then(({ data }) => {
-      if (data.session) navigate({ to: "/", replace: true });
-      else navigate({ to: "/login", replace: true });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        navigate({ to: "/", replace: true });
+      } else {
+        supabase.auth.exchangeCodeForSession(window.location.search).then(({ data }) => {
+          if (data.session) navigate({ to: "/", replace: true });
+          else navigate({ to: "/login", replace: true });
+        });
+      }
     });
   }, []);
 
