@@ -125,8 +125,10 @@ function AuthGate() {
         </div>
       </main>
       <MobileNav />
-      <footer className="py-6 text-center text-xs text-slate-500 md:pl-16">
-        ⚡ Powered by n8n • Live sync with Google Sheets • Auto-updates every 30s
+      <footer className="py-6 text-center text-xs text-slate-500 md:pl-16 space-x-3">
+        <span>⚡ Powered by n8n</span>
+        <span>•</span>
+        <Link to="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
       </footer>
     </>
   );
