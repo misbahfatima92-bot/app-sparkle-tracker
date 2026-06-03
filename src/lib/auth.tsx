@@ -79,12 +79,12 @@ const loginWithGoogle = async () => {
     provider: "google",
     options: {
       redirectTo: window.location.origin + "/auth/callback",
-      // scopes aur queryParams bilkul hatao
+      // scopes aur queryParams hatao
     },
   });
   if (error) throw new Error(error.message);
 };
-
+  
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
