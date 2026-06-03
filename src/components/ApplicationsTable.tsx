@@ -39,7 +39,6 @@ const filtered = useMemo(() => {
       return matchesQ && matchesS && matchesDate;
     });
   }, [rows, q, status]);
-  }, [rows, q, status]);
 
   return (
     <div className="glass p-5">
