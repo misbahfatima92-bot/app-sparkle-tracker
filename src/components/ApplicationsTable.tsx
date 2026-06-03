@@ -24,15 +24,21 @@ export function ApplicationsTable({ rows }: { rows: AppRow[] }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
 
-  const filtered = useMemo(() => {
+  const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const filtered = useMemo(() => {
     return rows.filter((r) => {
       const matchesQ =
         !q ||
         r.company.toLowerCase().includes(q.toLowerCase()) ||
         r.role.toLowerCase().includes(q.toLowerCase());
       const matchesS = status === "all" || statusKey(r.category) === status;
-      return matchesQ && matchesS;
+      const interviewDate = r.interview_date ? new Date(r.interview_date + "T00:00:00") : null;
+      const matchesDate = !interviewDate || interviewDate >= today;
+      return matchesQ && matchesS && matchesDate;
     });
+  }, [rows, q, status]);
   }, [rows, q, status]);
 
   return (
