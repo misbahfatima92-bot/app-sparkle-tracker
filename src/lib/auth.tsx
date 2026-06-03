@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(error.message);
   };
 
-  const loginWithGoogle = async () => {
+const loginWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -82,6 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         queryParams: { access_type: "offline", prompt: "consent" },
       },
     });
+    if (error) throw new Error(error.message);
+    if (data?.url) {
+      window.location.href = data.url;
+    }
+  };
     if (error) throw new Error(error.message);
     if (data?.url) {
       window.location.href = data.url;
@@ -99,8 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
-scopes: "https://www.googleapis.com/auth/gmail.readonly",
-queryParams: { access_type: "offline", prompt: "consent" },
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
