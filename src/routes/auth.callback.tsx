@@ -11,8 +11,9 @@ function AuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
+      const code = params.get("code") || hashParams.get("code");
 
       if (!code) {
         const { data } = await supabase.auth.getSession();
@@ -25,7 +26,6 @@ function AuthCallback() {
       }
 
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
       if (!error && data.session) {
         navigate({ to: "/", replace: true });
       } else {
