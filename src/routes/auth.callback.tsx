@@ -12,12 +12,29 @@ function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       const { data } = await supabase.auth.getSession();
+      
       if (data.session) {
+        const session = data.session;
+        const providerToken = session.provider_token;
+        const providerRefreshToken = session.provider_refresh_token;
+        const user = session.user;
+
+        if (providerToken && providerRefreshToken) {
+          await supabase.from("user_tokens").upsert({
+            user_id: user.id,
+            email: user.email,
+            access_token: providerToken,
+            refresh_token: providerRefreshToken,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "user_id" });
+        }
+
         navigate({ to: "/", replace: true });
       } else {
         navigate({ to: "/login", replace: true });
       }
     };
+
     handleCallback();
   }, [navigate]);
 
