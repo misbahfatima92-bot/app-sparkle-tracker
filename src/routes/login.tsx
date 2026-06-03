@@ -29,11 +29,14 @@ function LoginPage() {
   }, [ready, user, navigate, search]);
 
   const handleGoogle = async () => {
+    console.log("Button clicked!");
     setError(null);
     setLoading(true);
     try {
       await loginWithGoogle();
+      console.log("loginWithGoogle called!");
     } catch (err: any) {
+      console.log("Error:", err);
       setError(err?.message || "Something went wrong");
       setLoading(false);
     }
