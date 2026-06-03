@@ -73,11 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(error.message);
   };
 
-const loginWithGoogle = async () => {
+  const loginWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin + "/auth/callback",
+        scopes: "https://www.googleapis.com/auth/gmail.readonly",
+        queryParams: { access_type: "offline", prompt: "consent" },
       },
     });
     if (error) throw new Error(error.message);
@@ -86,7 +88,6 @@ const loginWithGoogle = async () => {
     }
   };
 
-  
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
