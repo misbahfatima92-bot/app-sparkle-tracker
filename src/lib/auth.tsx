@@ -6,14 +6,13 @@ const supabase = createClient(
   "eyJ...",
   {
     auth: {
-      flowType: "implicit",
+      flowType: "pkce",
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
   }
 );
-
 
 export { supabase };
 
@@ -74,17 +73,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(error.message);
   };
 
-const loginWithGoogle = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin + "/auth/callback",
-      // scopes aur queryParams hatao
-    },
-  });
-  if (error) throw new Error(error.message);
-};
-  
+  const loginWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + "/auth/callback",
+      },
+    });
+    if (error) throw new Error(error.message);
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
