@@ -99,6 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
+scopes: "https://www.googleapis.com/auth/gmail.readonly",
+queryParams: { access_type: "offline", prompt: "consent" },
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
