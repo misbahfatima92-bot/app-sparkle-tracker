@@ -16,6 +16,7 @@ export function useApplications() {
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    refetchInterval: 15_000,
     staleTime: 0,
     gcTime: 0,
   });
