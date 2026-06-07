@@ -76,19 +76,18 @@ export async function fetchSheet(): Promise<AppRow[]> {
   return out;
 }
 
-export async function fetchApplications(userId?: string): Promise<AppRow[]> {
-  let query = supabase
+export async function fetchApplications(_userId?: string): Promise<AppRow[]> {
+  const { data, error } = await supabase
     .from("applications")
     .select("id, company, role, status, interview_date, source_email, ai_summary, user_id, created_at")
     .order("created_at", { ascending: false });
 
-  if (userId) query = query.eq("user_id", userId);
-
-  const { data, error } = await query;
   if (error) {
     console.error("[fetchApplications] error:", error);
     throw error;
   }
+
+  console.log("[fetchApplications] fetched rows:", data?.length ?? 0, data);
 
   return (data ?? []).map((r: any) => {
     let interview_date: string | null = null;
