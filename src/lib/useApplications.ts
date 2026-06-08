@@ -12,7 +12,7 @@ export function useApplications() {
   const query = useQuery({
     queryKey,
     queryFn: () => fetchApplications(user?.id),
-    enabled: ready,
+    enabled: ready && !!user?.id,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -20,6 +20,7 @@ export function useApplications() {
     staleTime: 0,
     gcTime: 0,
   });
+
 
   useEffect(() => {
     const channel = supabase
