@@ -76,14 +76,16 @@ export async function fetchSheet(): Promise<AppRow[]> {
   return out;
 }
 
-export async function fetchApplications(userId?: string): Promise<AppRow[]> {
-  let uid = userId;
-  if (!uid) {
-    const { data: userData } = await supabase.auth.getUser();
-    uid = userData.user?.id;
+export async function fetchApplications(_userId?: string): Promise<AppRow[]> {
+  // Always resolve uid from the authenticated session — never trust a passed-in id.
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) {
+    console.error("[fetchApplications] auth.getUser error:", userErr);
+    return [];
   }
+  const uid = userData.user?.id;
   if (!uid) {
-    console.log("[fetchApplications] no user, returning empty");
+    console.log("[fetchApplications] no authenticated user, returning empty");
     return [];
   }
 
@@ -101,7 +103,7 @@ export async function fetchApplications(userId?: string): Promise<AppRow[]> {
   console.log("[fetchApplications] user:", uid, "rows:", data?.length ?? 0, data);
 
 
-  return (data ?? []).map((r: any) => {
+  return (data ?? []).filter((r: any) => r.user_id === uid).map((r: any) => {
     let interview_date: string | null = null;
     let interview_time = "";
     if (r.interview_date) {
