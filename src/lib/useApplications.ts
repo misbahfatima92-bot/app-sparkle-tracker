@@ -23,17 +23,46 @@ export function useApplications() {
 
 
   useEffect(() => {
+    if (!user?.id) return;
     const channel = supabase
-      .channel("applications-changes")
+      .channel(`applications-changes-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "applications" },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "applications",
+          filter: `user_id=eq.${user.id}`,
+        },
         (payload) => {
-          console.log("[realtime] applications change:", payload);
+          console.log("[realtime] INSERT applications:", payload);
           queryClient.invalidateQueries({ queryKey });
         }
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "applications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log("[realtime] UPDATE applications:", payload);
+          queryClient.invalidateQueries({ queryKey });
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "applications" },
+        (payload) => {
+          console.log("[realtime] DELETE applications:", payload);
+          queryClient.invalidateQueries({ queryKey });
+        }
+      )
+      .subscribe((status) => {
+        console.log("[realtime] subscription status:", status);
+      });
     return () => {
       supabase.removeChannel(channel);
     };
