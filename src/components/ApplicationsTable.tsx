@@ -134,18 +134,36 @@ const filtered = useMemo(() => {
                       View Email
                     </button>
                   </td>
+                  <td className="py-3 pr-4">
+                    <button
+                      onClick={() => setEditRow(r)}
+                      aria-label="Edit application"
+                      className="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-10 text-center text-slate-500">No applications yet.</td>
+                <td colSpan={8} className="py-10 text-center text-slate-500">No applications yet.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
       {openEmail && <EmailModal row={openEmail} onClose={() => setOpenEmail(null)} />}
+      {editRow && (
+        <AddApplicationPanel
+          mode="edit"
+          row={editRow}
+          open={true}
+          hideTrigger
+          onOpenChange={(o) => { if (!o) setEditRow(null); }}
+        />
+      )}
     </div>
   );
 }
