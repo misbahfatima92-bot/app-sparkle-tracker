@@ -201,6 +201,42 @@ function EmailModal({ row, onClose }: { row: AppRow; onClose: () => void }) {
   );
 }
 
+function linkifyText(text: string): React.ReactNode[] {
+  const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|(\b(?:zoom\.us|meet\.google\.com|teams\.microsoft\.com|webex\.com|gotomeet\.me)(?:\/[^\s]*)?)/gi;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = urlRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const url = match[0];
+    let href = url;
+    if (!href.startsWith("http://") && !href.startsWith("https://")) {
+      href = "https://" + href;
+    }
+    parts.push(
+      <a
+        key={`link-${match.index}`}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+      >
+        {url}
+        <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
+      </a>
+    );
+    lastIndex = match.index + url.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts;
+}
+
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-3">
