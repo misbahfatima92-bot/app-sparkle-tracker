@@ -10,6 +10,11 @@ export type AppRow = {
   action_required: string;
   interview_date: string | null; // ISO yyyy-mm-dd
   interview_time: string;
+  email_from?: string;
+  email_to?: string;
+  email_subject?: string;
+  email_date?: string | null;
+  email_body?: string;
 };
 
 const SHEET_URL =
