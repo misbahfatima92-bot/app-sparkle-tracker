@@ -77,6 +77,7 @@ const filtered = useMemo(() => {
               <th className="py-3 pr-4 font-medium">Date</th>
               <th className="py-3 pr-4 font-medium">Time</th>
               <th className="py-3 pr-4 font-medium">Action</th>
+              <th className="py-3 pr-4 font-medium">Email</th>
             </tr>
           </thead>
           <tbody>
