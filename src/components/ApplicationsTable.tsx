@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { Search, Clock, AlertCircle, Mail, X, ExternalLink } from "lucide-react";
+import { Search, Clock, AlertCircle, Mail, X, ExternalLink, Pencil } from "lucide-react";
 import type { AppRow } from "@/lib/sheets";
 import { statusKey } from "@/lib/sheets";
 import { StatusBadge } from "./StatusBadge";
+import { formatDate, formatTime12 } from "@/lib/datetime";
+import { AddApplicationPanel } from "./AddApplicationPanel";
 
 const AVATAR_COLORS = [
   "#7c3aed", "#06b6d4", "#10b981", "#f59e0b", "#f43f5e", "#6366f1", "#ec4899", "#14b8a6",
@@ -14,16 +16,12 @@ function avatarColor(name: string) {
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
-function formatDate(d: string | null) {
-  if (!d) return "—";
-  const dt = new Date(d + "T00:00:00");
-  return dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
 
 export function ApplicationsTable({ rows }: { rows: AppRow[] }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [openEmail, setOpenEmail] = useState<AppRow | null>(null);
+  const [editRow, setEditRow] = useState<AppRow | null>(null);
 
   const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -78,6 +76,7 @@ const filtered = useMemo(() => {
               <th className="py-3 pr-4 font-medium">Time</th>
               <th className="py-3 pr-4 font-medium">Action</th>
               <th className="py-3 pr-4 font-medium">Email</th>
+              <th className="py-3 pr-4 font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -108,7 +107,7 @@ const filtered = useMemo(() => {
                   <td className="py-3 pr-4 text-slate-300">
                     {r.interview_time ? (
                       <span className="inline-flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-cyan-400" /> {r.interview_time}
+                        <Clock className="h-3.5 w-3.5 text-cyan-400" /> {formatTime12(r.interview_time)}
                       </span>
                     ) : (
                       "—"
@@ -135,18 +134,36 @@ const filtered = useMemo(() => {
                       View Email
                     </button>
                   </td>
+                  <td className="py-3 pr-4">
+                    <button
+                      onClick={() => setEditRow(r)}
+                      aria-label="Edit application"
+                      className="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-10 text-center text-slate-500">No applications yet.</td>
+                <td colSpan={8} className="py-10 text-center text-slate-500">No applications yet.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
       {openEmail && <EmailModal row={openEmail} onClose={() => setOpenEmail(null)} />}
+      {editRow && (
+        <AddApplicationPanel
+          mode="edit"
+          row={editRow}
+          open={true}
+          hideTrigger
+          onOpenChange={(o) => { if (!o) setEditRow(null); }}
+        />
+      )}
     </div>
   );
 }

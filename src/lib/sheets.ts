@@ -1,5 +1,6 @@
 // Google Sheets gviz fetcher + parser
 import { supabase } from "./auth";
+import { extractDateTimeFromText } from "./datetime";
 
 export type AppRow = {
   id: string;
@@ -120,6 +121,14 @@ export async function fetchApplications(_userId?: string): Promise<AppRow[]> {
       }
     }
     const body = r.email_body ?? r.body ?? r.ai_summary ?? r.summary ?? r.source_email ?? "";
+
+    // Fallback: parse date/time from email body if DB has none
+    if (!interview_date || !interview_time) {
+      const parsed = extractDateTimeFromText(body);
+      if (!interview_date && parsed.date) interview_date = parsed.date;
+      if (!interview_time && parsed.time) interview_time = parsed.time;
+    }
+
     return {
       id: String(r.id),
       company: r.company ?? "",
