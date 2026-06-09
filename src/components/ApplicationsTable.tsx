@@ -107,7 +107,7 @@ const filtered = useMemo(() => {
                   <td className="py-3 pr-4 text-slate-300">
                     {r.interview_time ? (
                       <span className="inline-flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-cyan-400" /> {r.interview_time}
+                        <Clock className="h-3.5 w-3.5 text-cyan-400" /> {formatTime12(r.interview_time)}
                       </span>
                     ) : (
                       "—"
