@@ -10,6 +10,11 @@ export type AppRow = {
   action_required: string;
   interview_date: string | null; // ISO yyyy-mm-dd
   interview_time: string;
+  email_from?: string;
+  email_to?: string;
+  email_subject?: string;
+  email_date?: string | null;
+  email_body?: string;
 };
 
 const SHEET_URL =
@@ -91,7 +96,7 @@ export async function fetchApplications(_userId?: string): Promise<AppRow[]> {
 
   const { data, error } = await supabase
     .from("applications")
-    .select("id, company, role, status, interview_date, source_email, ai_summary, user_id, created_at")
+    .select("*")
     .eq("user_id", uid)
     .order("created_at", { ascending: false });
 
@@ -114,15 +119,21 @@ export async function fetchApplications(_userId?: string): Promise<AppRow[]> {
         interview_time = `${tMatch[1]}:${tMatch[2]}`;
       }
     }
+    const body = r.email_body ?? r.body ?? r.ai_summary ?? r.summary ?? r.source_email ?? "";
     return {
       id: String(r.id),
       company: r.company ?? "",
-      category: r.status ?? "",
+      category: r.status ?? r.category ?? "",
       role: r.role ?? "",
-      summary: r.ai_summary ?? "",
-      action_required: r.source_email ?? "",
+      summary: r.ai_summary ?? r.summary ?? "",
+      action_required: r.action_required ?? r.source_email ?? "",
       interview_date,
       interview_time,
+      email_from: r.email_from ?? r.from_email ?? r.sender ?? r.source_email ?? "",
+      email_to: r.email_to ?? r.to_email ?? r.recipient ?? "",
+      email_subject: r.email_subject ?? r.subject ?? r.role ?? "",
+      email_date: r.email_date ?? r.received_at ?? r.created_at ?? null,
+      email_body: body,
     };
   });
 }
